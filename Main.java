@@ -8,29 +8,20 @@ import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 
-enum Color{
+enum Color {
+    //ANSI
     DEFAULT("\033[0m"),
-    BLACK("\033[0;30m"),    // BLACK
-    RED("\033[0;31m"),      // RED
-    GREEN("\033[0;32m"),    // GREEN
-    YELLOW("\033[0;33m"),   // YELLOW
-    BLUE("\033[0;34m"),     // BLUE
-    MAGENTA("\033[0;35m"),  // MAGENTA
-    CYAN("\033[0;36m"),     // CYAN
-    WHITE("\033[0;37m"),    // WHITE
+    RED("\033[0;31m"), // RED
+    GREEN("\033[0;32m"), // GREEN
+    CYAN("\033[0;36m"), // CYAN
 
-    BLACK_BOLD("\033[1;30m"),   // BLACK
-    RED_BOLD("\033[1;31m"),     // RED
-    GREEN_BOLD("\033[1;32m"),   // GREEN
-    YELLOW_BOLD("\033[1;33m"),  // YELLOW
-    BLUE_BOLD("\033[1;34m"),    // BLUE
-    MAGENTA_BOLD("\033[1;35m"), // MAGENTA
-    CYAN_BOLD("\033[1;36m"),    // CYAN
-    WHITE_BOLD("\033[1;37m");   // WHITE
+    RED_BOLD("\033[1;31m"), // RED
+    GREEN_BOLD("\033[1;32m"), // GREEN
+    YELLOW_BOLD("\033[1;33m"); // YELLOW
 
+    private String code;
 
-    private final String code;
-    Color(String code){
+    Color(String code) {
         this.code = code;
     }
 
@@ -39,7 +30,6 @@ enum Color{
         return code;
     }
 }
-
 
 class Board {
     int[][] board = new int[5][5];
@@ -69,7 +59,7 @@ class Board {
         }
     }
 
-    String geString(){
+    String geString() {
         try {
             Scanner sc = new Scanner(System.in);
             return sc.nextLine();
@@ -164,24 +154,24 @@ class Board {
         }
     }
 
-    void inPlayPrint(String player){
-        System.out.println("\n\nYou are "+Color.RED_BOLD+"Player "+player+Color.DEFAULT+".");
-        System.out.println("Color Support:\n"+Color.CYAN+"> 0"+Color.DEFAULT+" - Already marked.\n\n");
+    void inPlayPrint(String player) {
+        System.out.println("\n\nYou are " + Color.RED_BOLD + "Player " + player + Color.DEFAULT + ".");
+        System.out.println("Color Support:\n" + Color.CYAN + "> 0" + Color.DEFAULT + " - Already marked.\n\n");
         printBoard();
         System.out.println();
     }
 
-    int markDone(int n){
-        for(int i=0;i<25;i++)
-        if(checked[i] == 0){
-        return checked[i] = n;
-        }
+    int markDone(int n) {
+        for (int i = 0; i < 25; i++)
+            if (checked[i] == 0) {
+                return checked[i] = n;
+            }
         return 1;
     }
-    
-    boolean alreadyDone(int n){
-        for(int i=0;i<25;i++){
-            if(checked[i] == n){
+
+    boolean alreadyDone(int n) {
+        for (int i = 0; i < 25; i++) {
+            if (checked[i] == n) {
                 return true;
             }
         }
@@ -189,25 +179,135 @@ class Board {
         return false;
     }
 
-    String getColor(int n){
-        for(int i=0;i<25;i++)
-        if(checked[i] == n) return String.format(Color.CYAN+"%5d "+Color.DEFAULT, n);
-        return String.format(Color.DEFAULT+"%5d "+Color.DEFAULT, n);
+    String getColor(int n) {
+        for (int i = 0; i < 25; i++)
+            if (checked[i] == n)
+                return String.format(Color.CYAN + "%5d " + Color.DEFAULT, n);
+        return String.format(Color.DEFAULT + "%5d " + Color.DEFAULT, n);
     }
 
-    void midGameBoard(String player){
+    int checkRow() {
+        int c, tot, fin = 0;
+        for (int i = 0; i < 5; i++) {
+            tot = c = 0;
+            while (c < 5) {
+                for (int z = 0; z < 25; z++) {
+                    if (checked[z] == board[i][c]) {
+                        tot++;
+                        break;
+                    }
+                }
+                c++;
+            }
+            if (tot == 5) {
+                fin++;
+            }
+        }
+        return fin;
+    }
+
+    int checkColumn() {
+        int c, tot, fin = 0;
+        for (int i = 0; i < 5; i++) {
+            tot = c = 0;
+            while (c < 5) {
+                for (int z = 0; z < 25; z++) {
+                    if (checked[z] == board[c][i]) {
+                        tot++;
+                        break;
+                    }
+                }
+                c++;
+            }
+            if (tot == 5) {
+                fin++;
+            }
+        }
+        return fin;
+    }
+
+    int checkDiagonal1() {
+        int tot = 0;
+        for (int i = 0; i < 5; i++) {
+            for (int z = 0; z < 25; z++) {
+                if (checked[z] == board[i][i]) {
+                    tot++;
+                    break;
+                }
+            }
+        }
+        return tot / 5;
+    }
+
+    int checkDiagonal2() {
+        int c = 0, fin=0,i=0,j=4;
+        while (c < 5) {
+            for (int z = 0; z < 25; z++) {
+                if (checked[z] == board[i][j]) {
+                    fin++;
+                    break;
+                }
+            }
+            i++;j--;
+            c++;
+        }
+        return fin/5;
+    }
+
+    int checkWin() {
+        return checkRow() + checkColumn() + checkDiagonal1() +checkDiagonal2();
+    }
+
+    String midGameBoard(String player) {
         cls();
-        System.out.println("\n\nYou are "+Color.RED_BOLD+"Player "+player+Color.DEFAULT+".");
-        System.out.println("Color Support:\n"+Color.CYAN+"> 0"+Color.DEFAULT+" - Already marked.\n\n");
+        System.out.println("\n\nYou are " + Color.RED_BOLD + "Player " + player + Color.DEFAULT + ".");
+        System.out.println("Color Support:\n" + Color.CYAN + "> 0" + Color.DEFAULT + " - Already marked.\n\n");
         for (i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++)
                 System.out.print(getColor(board[i][j]));
             System.out.println();
             System.out.println();
         }
+        System.out.println();
+        if(checkWin()==0) System.out.println("BINGO");
+        else if(checkWin() == 1) System.out.println(Color.YELLOW_BOLD + "B"+Color.DEFAULT+"INGO");
+        else if(checkWin() == 2) System.out.println(Color.YELLOW_BOLD + "BI"+Color.DEFAULT+"NGO");
+        else if(checkWin() == 3) System.out.println(Color.YELLOW_BOLD + "BIN"+Color.DEFAULT+"GO");
+        else if(checkWin() == 4) System.out.println(Color.YELLOW_BOLD + "BING"+Color.DEFAULT+"O");
+        else if(checkWin() >= 5) return "0";
+        System.out.println();
+        return "1";
+        
+    }
+
+    void finishWinGame(String player){
+        cls();
+        System.out.println("\n\nYou are " + Color.RED_BOLD + "Player " + player + Color.DEFAULT + ".\n"+Color.YELLOW_BOLD+"> YOU WIN!"+Color.DEFAULT);
+        System.out.println("Color Support:\n" + Color.CYAN + "> 0" + Color.DEFAULT + " - Already marked.\n\n");
+        for (i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++)
+                System.out.print(getColor(board[i][j]));
+            System.out.println();
+            System.out.println();
+        }
+        System.out.println();
+        System.out.println(Color.RED_BOLD+"Game Over!"+Color.DEFAULT);
+    }
+
+    void finishLose(String player){
+        cls();
+        System.out.println("\n\nYou are " + Color.RED_BOLD + "Player " + player + Color.DEFAULT + ".\n"+Color.RED_BOLD+"> YOU LOSE!"+Color.DEFAULT);
+        System.out.println("Color Support:\n" + Color.CYAN + "> 0" + Color.DEFAULT + " - Already marked.\n\n");
+        for (i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++)
+                System.out.print(getColor(board[i][j]));
+            System.out.println();
+            System.out.println();
+        }
+        System.out.println();
+        System.out.println(Color.RED_BOLD+"Game Over!"+Color.DEFAULT);
     }
 }
-
 
 class Misc extends Thread {
     public void run() {
@@ -216,12 +316,11 @@ class Misc extends Thread {
             System.out.print("Waiting for connetion");
             for (int ll = 0; ll < 5; ll++) {
                 System.out.print(".");
-                try{
+                try {
                     Thread.sleep(1000);
-                }catch(InterruptedException e){
+                } catch (InterruptedException e) {
                     return;
-                }
-                catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -229,7 +328,6 @@ class Misc extends Thread {
         }
     }
 }
-
 
 class Start extends Board {
     String intro = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n\n";
@@ -245,7 +343,8 @@ class Start extends Board {
         System.out.println("--  --    --      --     -- --    --  --       --    --");
         System.out.println("----     ----     --      ----     ----          ----\n\n");
         System.out.print(Color.GREEN + intro + Color.DEFAULT);
-        System.out.println("Enter one of the follwing options:\n\n1. Generate a random board.\n2. Enter your own values.\n3. Exit\n");
+        System.out.println(
+                "Enter one of the follwing options:\n\n1. Generate a random board.\n2. Enter your own values.\n3. Exit\n");
 
         option = getinput();
         while (true)
@@ -268,52 +367,75 @@ class Start extends Board {
 }
 
 class NewConnection {
-    Start start = new Start();
-    NewConnection(Start s){
-        this.start = s;
+    Start start;
+
+    NewConnection(Start s) {
+        start = s;
     }
+
     boolean client(Misc mm) {
         try {
             Socket sock = new Socket("localhost", 5000);
             DataInputStream din = new DataInputStream(sock.getInputStream());
             DataOutputStream dout = new DataOutputStream(sock.getOutputStream());
-            Scanner sc = new Scanner(System.in);
             mm.interrupt();
             start.cls();
             start.inPlayPrint("1");
             int out;
             String in;
-            while(true){
+            while (true) {
                 System.out.println("Enter a number to scratch out: ");
-                while(true){
+                while (true) {
                     out = start.getinput();
-                    if(out==0 || out > 25) System.out.println("Enter a number in the given range only 1-25 :");
-                    else if(start.alreadyDone(out)) System.out.println(out + " is marked already. Please enter another number which is not marked:");
-                    else break;
+                    if (out == 0 || out > 25)
+                        System.out.println("Enter a number in the given range only 1-25 :");
+                    else if (start.alreadyDone(out))
+                        System.out.println(out + " is marked already. Please enter another number which is not marked:");
+                    else
+                        break;
+                }
+                if(start.midGameBoard("1") == "0"){
+                    dout.writeUTF("0");
+                    dout.flush();
+                    start.finishWinGame("1");
+                    sock.close();
+                    return true;
                 }
                 dout.writeUTF(String.valueOf(out));
                 dout.flush();
-                start.markDone(out);
-                start.midGameBoard("1");
+
+                // READ INPUT - SOCKET
+                
                 in = din.readUTF();
-                if(in=="end")break;
+                if (in.equals("0")){
+                    System.out.println("p1 loses");
+                    //p1 loses
+                    dout.close();
+                    sock.close();
+                    start.finishLose("1");
+                    return true;
+                }
                 out = Integer.parseInt(in);
                 start.markDone(out);
-                start.midGameBoard("1");
+                if(start.midGameBoard("1") == "0"){
+                    dout.writeUTF("0");
+                    dout.flush();
+                    start.finishWinGame("1");
+                    dout.close();
+                    sock.close();
+                    return true;
+                }
             }
-            dout.close();
-            sock.close();
-            return true;
-        }catch(ConnectException e){
+        } catch (ConnectException e) {
             return false;
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    void server(Misc mm){
-        try{
+    void server(Misc mm) {
+        try {
             ServerSocket ss = new ServerSocket(5000);
             Socket s = ss.accept();
             mm.interrupt();
@@ -321,37 +443,49 @@ class NewConnection {
             start.inPlayPrint("2");
             DataInputStream din = new DataInputStream(s.getInputStream());
             DataOutputStream dout = new DataOutputStream(s.getOutputStream());
-            Scanner sc = new Scanner(System.in);
             int number;
             String in;
-            while(true){
+            while (true) {
+                // READ INPUT - SOCKET
                 in = din.readUTF();
-                number = Integer.parseInt(in);
-                System.out.println("Client: "+number);
-                start.markDone(number);
-                start.midGameBoard("2");
-                System.out.println("Enter a number to scratch out: ");
-                while(true){
-                    number = start.getinput();
-                    if(number==0 || number > 25) System.out.println("Enter a number in the given range only 1-25 :");
-                    else if(start.alreadyDone(number)) System.out.println(number + " is marked already. Please enter another number which is not marked:");
-                    else break;
+                if (in.equals("0")){
+                    System.out.println("p2 loses");
+                    //p2 loses
+                    dout.close();
+                    s.close();
+                    start.finishLose("2");
+                    return;
                 }
-                if(in=="!!")break;
-                //number = sc.nextInt();
+                number = Integer.parseInt(in);
+                start.markDone(number);
+                if(start.midGameBoard("2") == "0"){
+                    dout.writeUTF("0");
+                    dout.flush();
+                    dout.close();
+                    start.finishWinGame("2");
+                    return;
+                }
+                System.out.println("Enter a number to scratch out: ");
+                while (true) {
+                    number = start.getinput();
+                    if (number == 0 || number > 25)
+                        System.out.println("Enter a number in the given range only 1-25 :");
+                    else if (start.alreadyDone(number))
+                        System.out.println(number + " is marked already. Please enter another number which is not marked:");
+                    else
+                        break;
+                }
+                if(start.midGameBoard("2") == "0"){
+                    dout.writeUTF("0");
+                    dout.flush();
+                    dout.close();
+                    start.finishWinGame("2");
+                    return;
+                }
                 dout.writeUTF(String.valueOf(number));
                 dout.flush();
-                start.midGameBoard("2");
             }
-            try{
-                din.close();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
-            s.close();
-            ss.close();
-            dout.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -367,10 +501,9 @@ class Main {
         Misc mm = new Misc();
         mm.start();
         NewConnection nc = new NewConnection(s);
-        if(!nc.client(mm)){
+        if (!nc.client(mm)) {
             nc.server(mm);
         }
-        
 
     }
 }
